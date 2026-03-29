@@ -44,14 +44,18 @@ df["Recommendation"] = df.apply(recommend, axis=1)
 # Business Insight
 # -----------------------------
 compute_cost = df[df["service"] == "EC2"]["total_cost"].sum()
-score = 100 - int((compute_cost / total_cost) * 50)
+if total_cost > 0:
+    score = 100 - int((compute_cost / total_cost) * 50)
+else:
+    score = 0
 
 st.metric("Cloud Efficiency Score", f"{score}/100")
 
 percentage = (compute_cost / total_cost) * 100
 
 st.info(f"💡 {round(percentage,2)}% of your cost is from EC2 → possible over-provisioning")
-
+if percentage > 60:
+    st.warning("⚠️ High dependency on compute resources → Optimization needed urgently")
 # -----------------------------
 # Savings Calculation
 # -----------------------------
@@ -96,21 +100,20 @@ user_question = st.text_input("Ask a question about your cloud cost:")
 def chatbot_response(question):
     question = question.lower()
 
-    if "ec2" in question:
-        return "EC2 cost is high. Consider Reserved Instances or reduce usage during off-hours."
+    if "cost" in question:
+        return f"Your total monthly cloud cost is ₹{int(total_cost)}."
 
-    elif "s3" in question:
-        return "Move infrequent data to Glacier to save up to 60%."
+    elif "ec2" in question:
+        return f"EC2 contributes {round(percentage,2)}% of total cost. Consider rightsizing or Reserved Instances."
 
-    elif "rds" in question:
-        return "Use Reserved DB instances to reduce long-term cost."
+    elif "savings" in question or "save" in question:
+        return f"You can save approximately ₹{int(total_savings)} monthly and ₹{int(total_savings*12)} annually."
 
-    elif "save" in question:
-        return f"You can save approximately ₹{int(total_savings)} monthly."
+    elif "optimize" in question:
+        return "Focus on EC2 rightsizing, S3 lifecycle policies, and Reserved Instances for long-term savings."
+
+    elif "score" in question:
+        return f"Your cloud efficiency score is {score}/100. Lower score indicates optimization opportunities."
 
     else:
-        return "Analyze high-cost services like EC2 and optimize usage."
-
-if user_question:
-    response = chatbot_response(user_question)
-    st.success(f"🤖 {response}")
+        return "Try asking about cost, EC2, savings, or optimization."
