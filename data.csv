@@ -1,0 +1,6 @@
+service,usage_hours,cost_per_hour,total_cost,region,instance_type,environment
+EC2,140,5,700,ap-south-1,t2.micro,dev
+EC2,300,5,1500,ap-south-1,t2.medium,prod
+S3,800,0.02,16,ap-south-1,standard,prod
+RDS,120,10,1200,ap-south-1,db.t3.medium,prod
+Lambda,50000,0.00002,10,ap-south-1,serverless,dev
